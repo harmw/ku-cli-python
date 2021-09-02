@@ -113,5 +113,25 @@ def create_order(pair, direction, quantity, spend, confirm):
         click.secho('no action taken, use --confirm to create this order', fg='red')
 
 
+@cli.command('transfer')
+@click.option('--currency', required=True, help='Currency')
+@click.option('--amount', required=True, help='Amount to transfer', type=float)
+@click.option('--source', default='main', show_default=True, help='Main, trade or pool')
+@click.option('--dest', default='trade', show_default=True, help='Main, trade or pool')
+@click.option('--confirm', default=False, help='If not set, do not execute', is_flag=True)
+def transfer(currency, amount, source, dest, confirm):
+    """ Transfer funds in your account """
+    click.secho(f'Going to transfer {amount} of {currency} from {source} to {dest}', fg='green')
+    if confirm:
+        try:
+            r = user_client.inner_transfer(currency, source, dest, amount)
+            result = f"> created {r['orderId']}"
+            click.secho(result, fg='red')
+        except Exception as e:
+            click.secho(f'failed with: {e}', fg='red')
+    else:
+        click.secho('no action taken, use --confirm to create this order', fg='red')
+
+
 if __name__ == '__main__':
     cli()
