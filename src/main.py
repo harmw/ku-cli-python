@@ -28,7 +28,7 @@ def get_balances():
     accounts_sorted = sorted(accounts, key=lambda k: k['type'])
 
     for a in accounts_sorted:
-        if float(a['balance']) > 0.0005:
+        if float(a['balance']) > 0.01:
             click.secho(cols.format(a['type'], a['currency'], a['balance'], a['available'], a['holds']))
 
 
