@@ -21,12 +21,13 @@ def cli():
 @cli.command('balances')
 def get_balances():
     """ List all balances """
-    accounts = user_client.get_account_list()
-
     cols = "{:>10} {:>10} {:>15} {:>15} {:>15}"
     click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS'), fg='green')
 
-    for a in accounts:
+    accounts = user_client.get_account_list()
+    accounts_sorted = sorted(accounts, key=lambda k: k['type'])
+
+    for a in accounts_sorted:
         if float(a['balance']) > 0.0005:
             click.secho(cols.format(a['type'], a['currency'], a['balance'], a['available'], a['holds']))
 
