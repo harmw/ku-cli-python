@@ -43,18 +43,30 @@ def get_deposit_address(currency):
             click.secho(f"{a['address']} {a['memo']} {a['chain']}")
 
 
+@cli.command('cancel')
+@click.option('--order', required=True, help='order id to cancel')
+def cancel_order(order):
+    try:
+        r = trade_client.cancel_order(order)
+        click.secho(f"Order cancelled", fg='red')
+    except Exception as e:
+        click.secho(f"Failed to cancel order with {e}", fg='red')
+
+
 @cli.command('orders')
 def get_orders():
     """ List all open and closed orders """
-    cols = "{:<10} {:<10} {:<10} {:<10} {:<15} {:<15} {:<20} {:<30}"
-    click.secho(cols.format("STATUS", "DIRECTION", "SYMBOL", "TYPE", "PRICE", "QUANTITY", "FEES", "CREATED"), fg='green')
+    cols = "{:<10} {:<10} {:<10} {:<10} {:<15} {:<15} {:<20} {:<30} {:<40}"
+    click.secho(cols.format("STATUS", "DIRECTION", "SYMBOL", "TYPE", "PRICE", "QUANTITY", "FEES", "CREATED", "ID"), fg='green')
 
-    r = trade_client.get_order_list()
-    for o in r['items']:
+    active_orders = trade_client.get_order_list(status='active')
+    closed_orders = trade_client.get_order_list()
+
+    for o in active_orders['items'] + closed_orders['items']:
         status = 'open' if o['isActive'] else 'closed'
         # TODO: pretify
         created = o['createdAt']
-        click.secho(cols.format(status, o['side'], o['symbol'], o['type'], o['price'], o['size'], o['fee'], created))
+        click.secho(cols.format(status, o['side'], o['symbol'], o['type'], o['price'], o['size'], o['fee'], created, o['id']))
 
 
 def _get_ticker_data(symbol):
@@ -92,11 +104,29 @@ def create_order(pair, direction, quantity, spend, confirm):
         click.secho('need one of --quantity or --spend', fg='red')
         return
 
-    if spend:
-        quantity = spend / limit
-    target, base = pair.split('-')
-    spend = limit * quantity
-    click.secho(f'Going to {direction.lower()} {quantity} {target} at {limit} {base}, spending {spend} {base}', fg='green')
+    if direction.upper() == 'BUY':
+        if spend:
+            quantity = spend / limit
+        else:
+            spend = quantity / limit
+        target, base = pair.split('-')
+    else:
+        if spend:
+            quantity = spend * limit
+        else:
+            spend = limit * quantity
+        base, target = pair.split('-')
+
+    # TODO: Seems this isn't working as expected, so let's just fix it at 4 decimals
+    # details = market_client.get_currency_detail(target, chain=None)
+    # precision = 4 #details['precision']
+    quantity = int(quantity * 10000) / 10000
+
+    click.secho(f'Going to buy {quantity} {target} at {limit} {base}, spending {spend} {base}', fg='green')
+
+    # TODO: ugly, but works for now...
+    if direction.upper() == 'SELL':
+        quantity = spend
 
     if confirm:
         try:
