@@ -21,15 +21,20 @@ def cli():
 @cli.command('balances')
 def get_balances():
     """ List all balances """
-    cols = "{:>10} {:>10} {:>15} {:>15} {:>15}"
-    click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS'), fg='green')
+    cols = "{:>10} {:>10} {:>15} {:>15} {:>15} {:>15}"
+    click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS', 'PRICE_USD'), fg='green')
 
     accounts = user_client.get_account_list()
     accounts_sorted = sorted(accounts, key=lambda k: k['type'])
 
+    symbols = list(map(lambda k: k['currency'], accounts_sorted))
+    price_in_usd = market_client.get_fiat_price(currencies=",".join(symbols))
+
     for a in accounts_sorted:
         if float(a['balance']) > 0.01:
-            click.secho(cols.format(a['type'], a['currency'], a['balance'], a['available'], a['holds']))
+            currency = a['currency']
+            price = round(float(price_in_usd[currency]) * float(a['available']), 2)
+            click.secho(cols.format(a['type'], currency, a['balance'], a['available'], a['holds'], price))
 
 
 @cli.command('deposit')
