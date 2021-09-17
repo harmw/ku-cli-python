@@ -1,3 +1,4 @@
+import datetime
 import click
 import os
 import sys
@@ -70,8 +71,7 @@ def get_orders():
 
     for o in active_orders['items'] + closed_orders['items']:
         status = 'open' if o['isActive'] else 'closed'
-        # TODO: pretify
-        created = o['createdAt']
+        created = datetime.datetime.utcfromtimestamp(o['createdAt'] / 1000).strftime('%Y-%m-%dT%H:%M:%SZ')
         click.secho(cols.format(status, o['side'], o['symbol'], o['type'], o['price'], o['size'], o['fee'], created, o['id']))
 
 
