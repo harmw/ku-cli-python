@@ -17,6 +17,9 @@ market_client = Market()
 @click.group()
 def cli():
     """ Simple KuCoin cli, have fun """
+    if not (api_key or api_secret or api_passphrase):
+        click.secho('Make sure to configure API_KEY, API_SECRET and API_PASSPHRASE in your env', fg='red')
+        sys.exit()
 
 
 @cli.command('balances')
