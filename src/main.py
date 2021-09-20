@@ -56,6 +56,7 @@ def get_deposit_address(currency):
 @cli.command('cancel')
 @click.option('--order', required=True, help='order id to cancel')
 def cancel_order(order):
+    """ Cancel an order """
     try:
         r = trade_client.cancel_order(order)
         click.secho(f"Order cancelled", fg='red')
