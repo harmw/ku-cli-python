@@ -44,4 +44,4 @@ closed     sell       XLM-USDT   limit      0.335857        27.777          0.00
 Remember to whitelist withdrawals and IP access.
 
 ## Development
-PyCharm terminal: ` export LC_ALL=en_US.utf-8 LANG=en_US.utf-8`
+PyCharm terminal: `export LC_ALL=en_US.utf-8 LANG=en_US.utf-8`
