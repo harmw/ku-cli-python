@@ -92,11 +92,12 @@ def _get_ticker_data(symbol):
 @click.option('--symbol', required=True, help='Symbol to view (example: ADA-EUR)')
 def get_ticker(symbol):
     """ Get information about a ticker """
-    cols = '{:<10} {:<20} {:<20} {:<20}'
-    click.secho(cols.format('SYMBOL', 'PRICE', 'BIDRATE', 'ASKRATE'), fg='green')
+    cols = '{:<10} {:<20} {:<20} {:<20} {:<20}'
+    click.secho(cols.format('SYMBOL', 'PRICE', 'BIDRATE', 'ASKRATE', 'SPREAD'), fg='green')
 
     r = _get_ticker_data(symbol)
-    click.secho(cols.format(symbol, r['price'], r['bestBid'], r['bestAsk']))
+    spread = int((float(r['bestAsk']) - float(r['bestBid'])) * 10000) / 10000
+    click.secho(cols.format(symbol, r['price'], r['bestBid'], r['bestAsk'], spread))
 
 
 @cli.command('create')
