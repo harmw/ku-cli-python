@@ -23,12 +23,13 @@ def cli():
 
 
 @cli.command('balances')
-def get_balances():
+@click.option('--symbol', help='Optional symbol to view (example: USDT)')
+def get_balances(symbol):
     """ List all balances """
     cols = "{:>10} {:>10} {:>15} {:>15} {:>15} {:>15}"
     click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS', 'PRICE_USD'), fg='green')
 
-    accounts = user_client.get_account_list()
+    accounts = user_client.get_account_list(currency=symbol)
     accounts_sorted = sorted(accounts, key=lambda k: k['type'])
 
     symbols = list(map(lambda k: k['currency'], accounts_sorted))
