@@ -115,19 +115,21 @@ def get_ticker(symbol):
 def create_order(pair, direction, quantity, spend, confirm):
     """ Create a new order """
     market = _get_ticker_data(pair)
-    limit = float(market['bestAsk'])
+    limit = float(market['bestBid'])
 
     if not spend and not quantity:
         click.secho('need one of --quantity or --spend', fg='red')
         return
 
     if direction.upper() == 'BUY':
+        limit = float(market['bestAsk'])
         if spend:
             quantity = spend / limit
         else:
             spend = quantity / limit
         target, base = pair.split('-')
     else:
+        limit = float(market['bestBid'])
         if spend:
             quantity = spend * limit
         else:
