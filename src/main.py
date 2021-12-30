@@ -24,10 +24,12 @@ def cli():
 
 @cli.command('balances')
 @click.option('--symbol', help='Optional symbol to view (example: USDT)')
-def get_balances(symbol):
+@click.option('--boring', default=False, help='If set, only display amount available', is_flag=True)
+def get_balances(symbol, boring):
     """ List all balances """
     cols = "{:>10} {:>10} {:>15} {:>15} {:>15} {:>15}"
-    click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS', 'PRICE_USD'), fg='green')
+    if not boring:
+        click.secho(cols.format('ACCOUNT', 'CURRENCY', 'BALANCE', 'AVAILABLE', 'HOLDS', 'PRICE_USD'), fg='green')
 
     accounts = user_client.get_account_list(currency=symbol)
     accounts_sorted = sorted(accounts, key=lambda k: k['type'])
@@ -39,7 +41,10 @@ def get_balances(symbol):
         if float(a['balance']) > 0.01:
             currency = a['currency']
             price = round(float(price_in_usd[currency]) * float(a['available']), 2)
-            click.secho(cols.format(a['type'], currency, a['balance'], a['available'], a['holds'], price))
+            if boring:
+                click.secho("{}:{}:{}".format(a['type'], currency, a['available']))
+            else:
+                click.secho(cols.format(a['type'], currency, a['balance'], a['available'], a['holds'], price))
 
 
 @cli.command('deposit')
