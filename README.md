@@ -4,9 +4,9 @@ Very simple KuCoin cli.
 Create these in the KuCoin web portal and set them in your shell:
 
 ```
-export API_KEY=
-export API_SECRET=
-export API_PASSPHRASE=
+export KUCOIN_API_KEY=
+export KUCOIN_API_SECRET=
+export KUCOIN_API_PASSPHRASE=
 ```
 
 ## Usage

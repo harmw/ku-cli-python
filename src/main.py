@@ -5,9 +5,9 @@ import sys
 from kucoin.client import Market, User, Trade
 
 
-api_key = os.getenv('API_KEY')
-api_secret = os.getenv('API_SECRET')
-api_passphrase = os.getenv('API_PASSPHRASE')
+api_key = os.getenv('KUCOIN_API_KEY')
+api_secret = os.getenv('KUCOIN_API_SECRET')
+api_passphrase = os.getenv('KUCOIN_API_PASSPHRASE')
 
 trade_client = Trade(api_key, api_secret, api_passphrase, is_sandbox=False)
 user_client = User(api_key, api_secret, api_passphrase, is_sandbox=False)
