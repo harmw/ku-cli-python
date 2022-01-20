@@ -5,6 +5,7 @@ import requests
 import sys
 
 from kucoin.client import Market, User, Trade
+from pyhocon import ConfigFactory
 
 
 api_key = os.getenv('KUCOIN_API_KEY')
@@ -199,8 +200,15 @@ def transfer(currency, amount, source, dest, confirm):
 
 @cli.command('announce')
 def announce():
+    try:
+        conf = ConfigFactory.parse_file('allocations.conf')
+    except Exception as e:
+        click.secho(f'Failed to load config: {e}', fg='red')
+        return
+
     slack_url = os.getenv('KU_SLACK_URL')
-    symbols = []
+
+    symbols = list(map(lambda l: l['name'], conf['allocations']))
     accounts = filter(lambda l: l['currency'] in symbols, user_client.get_account_list(account_type='trade'))
     price_in_usd = market_client.get_fiat_price(currencies=",".join(symbols))
     text = ['> :ledger::rocket: portfolio balance']

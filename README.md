@@ -40,6 +40,24 @@ STATUS     DIRECTION  SYMBOL     TYPE       PRICE           QUANTITY        FEES
 closed     sell       XLM-USDT   limit      0.335857        27.777          0.009329099889       1631189856030                  6139fb60351aecddd6976976
 ```
 
+Sending a portfolio to Slack requires an `allocations.conf` file:
+```
+version = "1.0"
+allocations = [
+  {
+    name = BTC
+    pair = BTC-USDC
+  }
+]
+```
+And an environment variable with the webhook url: `KU_SLACK_URL=https://slack`
+
+Sending the message to Slack:
+```
+python src/main.py announce
+Sending message to https://hooks.slack.com/services/x/y/z
+```
+
 ## Notes
 Remember to whitelist withdrawals and IP access.
 
