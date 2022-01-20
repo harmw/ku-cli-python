@@ -1,7 +1,9 @@
 import datetime
 import click
 import os
+import requests
 import sys
+
 from kucoin.client import Market, User, Trade
 
 
@@ -106,6 +108,20 @@ def get_ticker(symbol):
     click.secho(cols.format(symbol, r['price'], r['bestBid'], r['bestAsk'], spread))
 
 
+def slack_announce(text, slack_url):
+    slack_data = {
+        'blocks': [{
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "\n".join(text)
+            }
+        }]
+    }
+    click.secho(f'Sending message to {slack_url}', fg='green')
+    return requests.post(slack_url, json=slack_data)
+
+
 @cli.command('create')
 @click.option('--pair', required=True, help='Trade pair (ticker)')
 @click.option('--direction', default='BUY', show_default=True, help='Buy or sell.')
@@ -179,6 +195,23 @@ def transfer(currency, amount, source, dest, confirm):
             click.secho(f'failed with: {e}', fg='red')
     else:
         click.secho('no action taken, use --confirm to create this order', fg='red')
+
+
+@cli.command('announce')
+def announce():
+    slack_url = os.getenv('KU_SLACK_URL')
+    symbols = []
+    accounts = filter(lambda l: l['currency'] in symbols, user_client.get_account_list(account_type='trade'))
+    price_in_usd = market_client.get_fiat_price(currencies=",".join(symbols))
+    text = ['> :ledger::rocket: portfolio balance']
+    for a in accounts:
+        if float(a['balance']) > 0.01:
+            currency = a['currency']
+            price = round(float(price_in_usd[currency]) * float(a['available']), 2)
+            text.append("> :moneybag: {} *{}*: USD {}".format(a['available'], currency, price))
+
+    _ = slack_announce(text, slack_url)
+    return
 
 
 if __name__ == '__main__':
