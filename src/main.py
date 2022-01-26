@@ -1,4 +1,6 @@
 import datetime
+import logging
+
 import click
 import os
 import requests
@@ -109,7 +111,13 @@ def get_ticker(symbol):
     click.secho(cols.format(symbol, r['price'], r['bestBid'], r['bestAsk'], spread))
 
 
-def slack_announce(text, slack_url):
+def slack_announce(text):
+    if 'KU_SLACK_URL' in os.environ:
+        slack_url = os.getenv('KU_SLACK_URL')
+    else:
+        logging.error(f'Failed: missing KU_SLACK_URL in environment')
+        return
+
     slack_data = {
         'blocks': [{
             "type": "section",
@@ -206,8 +214,6 @@ def announce():
         click.secho(f'Failed to load config: {e}', fg='red')
         return
 
-    slack_url = os.getenv('KU_SLACK_URL')
-
     symbols = list(map(lambda l: l['name'], conf['allocations']))
     accounts = filter(lambda l: l['currency'] in symbols, user_client.get_account_list(account_type='trade'))
     price_in_usd = market_client.get_fiat_price(currencies=",".join(symbols))
@@ -218,7 +224,7 @@ def announce():
             price = round(float(price_in_usd[currency]) * float(a['available']), 2)
             text.append("> :moneybag: {} *{}*: USD {}".format(a['available'], currency, price))
 
-    _ = slack_announce(text, slack_url)
+    _ = slack_announce(text)
     return
 
 
