@@ -137,7 +137,8 @@ def slack_announce(text):
 @click.option('--quantity', help='Quantity to buy or sell', type=float)
 @click.option('--spend', help='Spend this amount', type=float)
 @click.option('--confirm', default=False, help='If not set, do not execute', is_flag=True)
-def create_order(pair, direction, quantity, spend, confirm):
+@click.option('--slack', default=False, help='If set, announce to Slack', is_flag=True)
+def create_order(pair, direction, quantity, spend, confirm, slack):
     """ Create a new order """
     market = _get_ticker_data(pair)
 
@@ -180,6 +181,12 @@ def create_order(pair, direction, quantity, spend, confirm):
             else:
                 result = f"> created {r['orderId']}"
                 click.secho(result, fg='red')
+                if slack:
+                    text = [
+                        '> :tada: order created :tada:',
+                        f'> :money_with_wings: buy *{quantity} {target}* at *{limit} {base}*, spending *{spend} {base}*'
+                    ]
+                    slack_announce(text)
         except Exception as e:
             click.secho(e, fg='red')
     else:
