@@ -43,9 +43,9 @@ def get_balances(symbol, boring):
     price_in_usd = market_client.get_fiat_price(currencies=",".join(symbols))
 
     for a in accounts_sorted:
-        if float(a['balance']) > 0.01:
-            currency = a['currency']
-            price = round(float(price_in_usd[currency]) * float(a['available']), 2)
+        currency = a['currency']
+        price = round(float(price_in_usd[currency]) * float(a['available']), 2)
+        if price > 0.01:
             if boring:
                 click.secho("{}:{}:{}".format(a['type'], currency, a['available']))
             else:
